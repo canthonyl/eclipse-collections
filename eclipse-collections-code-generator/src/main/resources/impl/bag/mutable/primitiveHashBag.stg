@@ -20,10 +20,12 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import org.eclipse.collections.api.<name>Iterable;
 import org.eclipse.collections.api.bag.MutableBag;
+import org.eclipse.collections.api.bag.MutableBagIterable;
 import org.eclipse.collections.api.bag.primitive.<name>Bag;
 import org.eclipse.collections.api.bag.primitive.Immutable<name>Bag;
 import org.eclipse.collections.api.bag.primitive.Mutable<name>Bag;
@@ -627,6 +629,29 @@ public class <name>HashBag extends Abstract<name>Iterable implements Mutable<nam
             result.addOccurrences(function.valueOf(each), occurrences));
         return result;
     }
+
+    @Override
+    public \<V, R extends Collection\<V> > R collect(final <name>ToObjectFunction\<? extends V> function, R target)
+    {
+        if (target instanceof MutableBagIterable\<?>)
+        {
+            MutableBagIterable\<V> targetBag = (MutableBagIterable\<V>) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+		else
+        {
+            this.forEachWithOccurrences((each, occurrences) -> {
+                V value = function.valueOf(each);
+                for (int i = 0; i \< occurrences; i++)
+                {
+                    target.add(value);
+                }
+            });
+        }
+        
+        return target;
+    }
+
 
     @Override
     public <type> max()
