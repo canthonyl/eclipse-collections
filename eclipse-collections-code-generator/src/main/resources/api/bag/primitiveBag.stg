@@ -20,9 +20,28 @@ import org.eclipse.collections.api.<name>Iterable;
 import org.eclipse.collections.api.bag.Bag;
 import org.eclipse.collections.api.block.function.primitive.<name>ToObjectFunction;
 <if(!primitive.intPrimitive)>import org.eclipse.collections.api.block.predicate.primitive.IntPredicate;<endif>
+import org.eclipse.collections.api.bag.primitive.Mutable<name>Bag;
+import org.eclipse.collections.api.block.function.primitive.<name>ToBooleanFunction;
+import org.eclipse.collections.api.block.function.primitive.<name>ToByteFunction;
+import org.eclipse.collections.api.block.function.primitive.<name>ToShortFunction;
+import org.eclipse.collections.api.block.function.primitive.<name>ToCharFunction;
+import org.eclipse.collections.api.block.function.primitive.<name>ToDoubleFunction;
+import org.eclipse.collections.api.block.function.primitive.<name>ToFloatFunction;
+import org.eclipse.collections.api.block.function.primitive.<name>ToIntFunction;
+import org.eclipse.collections.api.block.function.primitive.<name>ToLongFunction;
+import org.eclipse.collections.api.block.function.primitive.Object<name>ToObjectFunction;
+import org.eclipse.collections.api.block.function.primitive.<name>ToObjectFunction;
 import org.eclipse.collections.api.block.predicate.primitive.<name>Predicate;
 import org.eclipse.collections.api.block.procedure.primitive.<name>Procedure;
 import org.eclipse.collections.api.block.procedure.primitive.<name>IntProcedure;
+import org.eclipse.collections.api.collection.primitive.MutableBooleanCollection;
+import org.eclipse.collections.api.collection.primitive.MutableByteCollection;
+import org.eclipse.collections.api.collection.primitive.MutableCharCollection;
+import org.eclipse.collections.api.collection.primitive.MutableDoubleCollection;
+import org.eclipse.collections.api.collection.primitive.MutableFloatCollection;
+import org.eclipse.collections.api.collection.primitive.MutableIntCollection;
+import org.eclipse.collections.api.collection.primitive.MutableLongCollection;
+import org.eclipse.collections.api.collection.primitive.MutableShortCollection;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.tuple.primitive.<name>IntPair;
 
@@ -90,6 +109,119 @@ public interface <name>Bag extends <name>Iterable
     @Override
     \<V> Bag\<V> collect(<name>ToObjectFunction\<? extends V> function);
 
+    default \<R extends MutableBooleanCollection> R collectBoolean(<name>ToBooleanFunction function, R target)
+    {
+        if (target instanceof MutableBooleanBag)
+        {
+            MutableBooleanBag targetBag = (MutableBooleanBag) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+    		else
+        {
+        		this.each(each ->  target.add(function.valueOf(each)));
+        	}
+        return target;
+    }
+
+    default \<R extends MutableByteCollection> R collectByte(<name>ToByteFunction function, R target)
+    {
+        if (target instanceof MutableByteBag)
+        {
+            MutableByteBag targetBag = (MutableByteBag) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+    		else
+        {
+        		this.each(each ->  target.add(function.valueOf(each)));
+        	}
+        return target;
+    }
+
+    default \<R extends MutableCharCollection> R collectChar(<name>ToCharFunction function, R target)
+    {
+        if (target instanceof MutableCharBag)
+        {
+            MutableCharBag targetBag = (MutableCharBag) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+    		else
+        {
+        		this.each(each ->  target.add(function.valueOf(each)));
+        	}
+        return target;
+    }
+
+    default \<R extends MutableShortCollection> R collectShort(<name>ToShortFunction function, R target)
+    {
+        if (target instanceof MutableShortBag)
+        {
+            MutableShortBag targetBag = (MutableShortBag) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+    		else
+        {
+        		this.each(each ->  target.add(function.valueOf(each)));
+        	}
+        return target;
+    }
+
+    default \<R extends MutableIntCollection> R collectInt(<name>ToIntFunction function, R target)
+    {
+        if (target instanceof MutableIntBag)
+        {
+            MutableIntBag targetBag = (MutableIntBag) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+    		else
+        {
+        		this.each(each ->  target.add(function.valueOf(each)));
+        }
+        return target;
+    }
+    
+    default \<R extends MutableFloatCollection> R collectFloat(<name>ToFloatFunction function, R target)
+    {
+        if (target instanceof MutableFloatBag)
+        {
+            MutableFloatBag targetBag = (MutableFloatBag) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+    		else
+        {
+        		this.each(each ->  target.add(function.valueOf(each)));
+        	}
+        return target;
+    }
+
+    default \<R extends MutableLongCollection> R collectLong(<name>ToLongFunction function, R target)
+    {
+        if (target instanceof MutableLongBag)
+        {
+            MutableLongBag targetBag = (MutableLongBag) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+    		else
+        {
+        		this.each(each ->  target.add(function.valueOf(each)));
+        	}
+        return target;
+    }
+
+    default \<R extends MutableDoubleCollection> R collectDouble(<name>ToDoubleFunction function, R target)
+    {
+        if (target instanceof MutableDoubleBag)
+        {
+            MutableDoubleBag targetBag = (MutableDoubleBag) target;
+            this.forEachWithOccurrences((each, occurrences) -> targetBag.addOccurrences(function.valueOf(each), occurrences));
+        }
+    		else
+        {
+        		this.each(each ->  target.add(function.valueOf(each)));
+        	}
+        return target;
+    }
+    
+    
     /**
      * Follows the same general contract as {@link Bag#equals(Object)}.
      */
