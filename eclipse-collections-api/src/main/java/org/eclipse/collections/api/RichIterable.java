@@ -13,8 +13,10 @@ package org.eclipse.collections.api;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.DoubleSummaryStatistics;
+import java.util.HashMap;
 import java.util.IntSummaryStatistics;
 import java.util.LongSummaryStatistics;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -1985,7 +1987,20 @@ public interface RichIterable<T>
      * @since 1.0
      */
     <V> Multimap<V, T> groupBy(Function<? super T, ? extends V> function);
+    
+    default <V,W> Map<V, Multimap<W, T>> groupByMultiLevel(Function<? super T, ? extends V> function, Function<? super T, ? extends W> function2){
+    		
 
+    		Multimap<V,T> firstLevel = this.groupBy(function);
+    		Multimap<V,W> alternateLevel = firstLevel.collectValues(function2);
+    		
+    		Map<V,Multimap<W,T>> result = new HashMap<>();
+    		//TODO: add to result by transforming map of V-> Collection of W to V -> (Map of W -> T)
+    		
+    		
+    		return result;
+    }
+    
     /**
      * This method will count the number of occurrences of each value calculated by applying the
      * function to each element of the collection.
