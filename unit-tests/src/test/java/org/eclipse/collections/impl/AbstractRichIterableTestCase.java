@@ -19,6 +19,7 @@ import java.util.IntSummaryStatistics;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LongSummaryStatistics;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -104,9 +105,11 @@ import org.eclipse.collections.impl.list.mutable.primitive.LongArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.ShortArrayList;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.map.sorted.mutable.TreeSortedMap;
+import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
 import org.eclipse.collections.impl.test.Verify;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -1435,6 +1438,52 @@ public abstract class AbstractRichIterableTestCase
         Assert.assertEquals(expected, multimap2.toMap());
     }
 
+    @Test
+    public void groupBy2()
+    {
+        RichIterable<Integer> collection = this.newWith(1, 2, 3,4,5,6,7,8);
+        Function<Integer, Boolean> isOddFunction = object -> IntegerPredicates.isOdd().accept(object);
+        Function<Integer, Boolean> lessThan5 = object -> object < 5;
+        
+        RichIterable<Integer> expectedSet1 = this.newWith(1,3).toSortedList(); //range from 1 to 4 and odds
+        RichIterable<Integer> expectedSet2 = this.newWith(2,4).toSortedList(); //range from 1 to 4 and even
+        RichIterable<Integer> expectedSet3 = this.newWith(5,7).toSortedList(); //range > 4 and odds
+        RichIterable<Integer> expectedSet4 = this.newWith(6,8).toSortedList(); //range > 4 and even
+
+        Map<Boolean, Multimap<Boolean, Integer>> mapOfMultimap = collection.groupBy2(lessThan5, isOddFunction);
+
+        Assert.assertEquals(expectedSet1, mapOfMultimap.get(true).get(true).toSortedList()); 
+        Assert.assertEquals(expectedSet2, mapOfMultimap.get(true).get(false).toSortedList()); 
+        Assert.assertEquals(expectedSet3, mapOfMultimap.get(false).get(true).toSortedList()); 
+        Assert.assertEquals(expectedSet4, mapOfMultimap.get(false).get(false).toSortedList()); 
+    }
+
+    @Test
+    public void groupBy3()
+    {
+        RichIterable<Integer> collection = this.newWith(1, 2, 3,4,5,6,7,8,9);
+        Function<Integer, Boolean> isOddFunction = object -> IntegerPredicates.isOdd().accept(object);
+        Function<Integer, Boolean> lessThan7 = object -> object < 7;
+        Function<Integer, Boolean> lessThan4 = object -> object < 4;
+        
+        RichIterable<Integer> expectedSet1 = this.newWith(1,3).toSortedList(); //range [1,3] and odds
+        RichIterable<Integer> expectedSet2 = this.newWith(2).toSortedList(); //range [1,3] and even
+        RichIterable<Integer> expectedSet3 = this.newWith(5).toSortedList(); //range [4,6] and odds
+        RichIterable<Integer> expectedSet4 = this.newWith(4,6).toSortedList(); //range [4,6] and even
+        RichIterable<Integer> expectedSet5 = this.newWith(7,9).toSortedList(); //range [7,9] and odds
+        RichIterable<Integer> expectedSet6 = this.newWith(8).toSortedList(); //range [7,9] and even
+
+        Map<Boolean, Map<Boolean, Multimap<Boolean, Integer>>> mapOfMultimap = collection.groupBy3(lessThan4, lessThan7, isOddFunction);
+
+        Assert.assertEquals(expectedSet1, mapOfMultimap.get(true).get(true).get(true).toSortedList()); 
+        Assert.assertEquals(expectedSet2, mapOfMultimap.get(true).get(true).get(false).toSortedList()); 
+        Assert.assertEquals(expectedSet3, mapOfMultimap.get(false).get(true).get(true).toSortedList()); 
+        Assert.assertEquals(expectedSet4, mapOfMultimap.get(false).get(true).get(false).toSortedList()); 
+        Assert.assertEquals(expectedSet5, mapOfMultimap.get(false).get(false).get(true).toSortedList()); 
+        Assert.assertEquals(expectedSet6, mapOfMultimap.get(false).get(false).get(false).toSortedList()); 
+    }    
+
+    
     @Test
     public void groupByEach()
     {

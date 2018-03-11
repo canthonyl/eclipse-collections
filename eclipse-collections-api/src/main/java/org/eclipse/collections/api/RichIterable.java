@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+
 import org.eclipse.collections.api.bag.Bag;
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.bag.MutableBagIterable;
@@ -1987,19 +1988,29 @@ public interface RichIterable<T>
      * @since 1.0
      */
     <V> Multimap<V, T> groupBy(Function<? super T, ? extends V> function);
-    
-    default <V,W> Map<V, Multimap<W, T>> groupByMultiLevel(Function<? super T, ? extends V> function, Function<? super T, ? extends W> function2){
-    		
 
-    		Multimap<V,T> firstLevel = this.groupBy(function);
-    		Multimap<V,W> alternateLevel = firstLevel.collectValues(function2);
-    		
-    		Map<V,Multimap<W,T>> result = new HashMap<>();
-    		//TODO: add to result by transforming map of V-> Collection of W to V -> (Map of W -> T)
-    		
-    		
+    default <V,W> Map<V, Multimap<W, T>> groupBy2(Function<? super T, ? extends V> function1, Function<? super T, ? extends W> function2){
+		Map<V,Multimap<W,T>> result = new HashMap<>();  
+		Multimap<V,T> map1 = this.groupBy(function1);
+		map1.forEachKey(v ->{
+			Multimap<W,T> multimap2 = map1.get(v).groupBy(function2);
+			result.put(v,multimap2);
+		});
+
     		return result;
     }
+    
+    default <V,W,X> Map<V,Map<W, Multimap<X, T>>> groupBy3(Function<? super T, ? extends V> function1, Function<? super T, ? extends W> function2, Function<? super T, ? extends X> function3){
+		Map<V,Map<W,Multimap<X,T>>> result = new HashMap<>();  
+		Map<V,Multimap<W,T>> map1 = this.groupBy2(function1, function2);  
+		map1.forEach((v,map2) ->{
+			map2.forEachKey(w -> {
+				Multimap<X,T> multimap3 = map2.get(w).groupBy(function3);
+				result.computeIfAbsent(v, key -> new HashMap<>()).put(w, multimap3);
+			});
+		});
+		return result;
+    } 
     
     /**
      * This method will count the number of occurrences of each value calculated by applying the
