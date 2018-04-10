@@ -1153,6 +1153,139 @@ public class UnifiedSet<T>
         return false;
     }
 
+    @Override
+    public boolean removeIf(Predicate<? super T> predicate)
+    {
+        boolean result = false;
+        for (int i=0; i< this.table.length; i++)
+        {
+            Object cur = this.table[i];
+            if (cur instanceof ChainedBucket)
+            {
+                result = this.removeIfFromChain((ChainedBucket) cur, i, predicate);
+            }
+            else if (cur != null)
+            {
+                T each = this.nonSentinel(cur);
+                if (predicate.accept(each))
+                {
+                    this.table[i] = null;
+                    this.occupied--;
+                    result = true;
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean removeIfFromChain(ChainedBucket bucket, int index, Predicate<? super T> predicate)
+    {
+        boolean result = false;
+        if (this.nonNullTableObjectSatisfies(bucket.zero, predicate))
+        {
+            bucket.zero = bucket.removeLast(0);
+            if (bucket.zero == null)
+            {
+                this.table[index] = null;
+            }
+            this.occupied--;
+            result = true;
+        }
+        if (bucket.one == null)
+        {
+            return false;
+        }
+        if (this.nonNullTableObjectSatisfies(bucket.one, predicate))
+        {
+            bucket.one = bucket.removeLast(1);
+            this.occupied--;
+            result = true;
+        }
+        if (bucket.two == null)
+        {
+            return false;
+        }
+        if (this.nonNullTableObjectSatisfies(bucket.two, predicate))
+        {
+            bucket.two = bucket.removeLast(2);
+            this.occupied--;
+            result = true;
+        }
+        if (bucket.three == null)
+        {
+            return false;
+        }
+        if (bucket.three instanceof ChainedBucket)
+        {
+            return this.removeIfFromDeepChain(bucket, predicate);
+        }
+        if (this.nonNullTableObjectSatisfies(bucket.three, predicate))
+        {
+            bucket.three = bucket.removeLast(3);
+            this.occupied--;
+            result = true;
+        }
+        return result;
+    }
+    private boolean removeIfFromDeepChain(ChainedBucket oldBucket, Predicate<? super T> predicate)
+    {
+        boolean result = false;
+        do
+        {
+        	//need to "shift" the values 
+            ChainedBucket bucket = (ChainedBucket) oldBucket.three;
+            if (this.nonNullTableObjectSatisfies(bucket.zero, predicate))
+            {
+                bucket.zero = bucket.removeLast(0);
+                if (bucket.zero == null)
+                {
+                    oldBucket.three = null;
+                }
+                this.occupied--;
+                result = true;
+            }
+            if (bucket.one == null)
+            {
+                break;
+            }
+            if (this.nonNullTableObjectSatisfies(bucket.one, predicate))
+            {
+                bucket.one = bucket.removeLast(1);
+                this.occupied--;
+                result = true;
+            }
+            if (bucket.two == null)
+            {
+                break;
+            }
+            if (this.nonNullTableObjectSatisfies(bucket.two, predicate))
+            {
+                bucket.two = bucket.removeLast(2);
+                this.occupied--;
+                result = true;
+            }
+            if (bucket.three == null)
+            {
+                break;
+            }
+            if (bucket.three instanceof ChainedBucket)
+            {
+                oldBucket = bucket;
+                continue;
+            }
+            if (this.nonNullTableObjectSatisfies(bucket.three, predicate))
+            {
+                bucket.three = bucket.removeLast(3);
+                this.occupied--;
+                result = true;
+            }
+            break;
+        }
+        while (true);
+
+        return result;
+
+    }
     private boolean removeFromChain(ChainedBucket bucket, T key, int index)
     {
         if (this.nonNullTableObjectEquals(bucket.zero, key))
@@ -2337,6 +2470,10 @@ public class UnifiedSet<T>
         return cur == key || (cur == NULL_KEY ? key == null : cur.equals(key));
     }
 
+    private boolean nonNullTableObjectSatisfies(Object cur, Predicate<? super T> predicate)
+    {
+        return cur == null ? false : predicate.accept((T)cur);
+    }
     @Override
     @Beta
     public ParallelUnsortedSetIterable<T> asParallel(ExecutorService executorService, int batchSize)
