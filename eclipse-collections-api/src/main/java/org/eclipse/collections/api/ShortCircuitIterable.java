@@ -16,6 +16,9 @@ import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.predicate.Predicate2;
 
+/**
+ * @since 10.0.
+ */
 public interface ShortCircuitIterable<T>
 {
     T detect(Predicate<? super T> predicate);
